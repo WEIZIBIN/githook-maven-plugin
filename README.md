@@ -14,10 +14,10 @@ Moreover, client hooks are common for every local branch.
 ## So why should I use this plugin?
 Because it simply workarounds the problem of providing hook configuration to the repository, and automates their installation.
 
-## A note about implementation
+## The concept
 The idea is simple: keep somewhere a mapping between the hook name and the script, for each hook name create a respective file in .git/hooks, containing that script when the project initializes. "Initializes" -- is quite a polymorphic term, but when it's a maven project, then it likely means initial [lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html). In the majority of cases, it will be enough to map the plugin on "initialize" phase, but you can still [create any other custom execution](https://maven.apache.org/guides/mini/guide-configuring-plugins.html#Using_the_executions_Tag).
 
-## A note about flaws of this approach
+## Flaws
 Obviously, nothing can restrain one from the cloning of repository, and interacting with it without initial build. Also, it's always possible to delete hook files.
 
 ## Usage
