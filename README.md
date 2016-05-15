@@ -1,12 +1,72 @@
 # githook-maven-plugin
 Maven plugin to configure and install local git hooks
 
-## Reasoning
-It's always a good idea to check your changes before comitting: run unit tests, perform build, etc. However, when you rely on memory and 
-conscience, there's a risk to simply forget, as you're human. The problem grows when we talk about a team or even about a huge project 
-with a number of teams. The solution is to get rid of human factor. The best way is to implement such verification on the 
+## Protect your VCS
+It's always a good idea to check your changes before comitting them: run unit tests, perform build, etc. However, when you rely on memory and conscience, there's a risk to simply forget, as you're human. The problem grows when we talk about a team or even about a huge project with a number of teams. The solution is to get rid of human factor. The best way is to implement such verification on the
 project infrastructure level: force merge requests, use git backend hooks to execute validation scripts, restrict merge if they failed. 
-But sometimes there's no infrastructure or it doesn't allow to implement that. For the latter cases 
+But sometimes there's no infrastructure or it doesn't allow to implement that. For the latter cases there are [git client hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks).
 
+## Drawbacks of local git hooks
+The main disadvantage of this approach is that hooks are kept within .git directory, which shall never come to the remote repository. Therefore, each developer will have to install them manually in his local repository, and it's bad, as the human factor strikes back. Also, it will be nearly impossible to perform the validation which requires something beyond the local development environment. 
 
+## So why should I use this plugin?
+Because it simply workarounds the problem of providing hook configuration to the repository, and automates their installation.
 
+## A note about implementation
+The idea is simple: keep somewhere a mapping between the hook name and the script, for each hook name create a respective file in .git/hooks, containing that script when the project initializes. "Initializes" -- is quite a polymorphic term, but when it's about a maven project, then it likely means initial [lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html). In the majority of cases it will be enough to map the plugin on "initialize" phase, but you can still [create any other custom execution](https://maven.apache.org/guides/mini/guide-configuring-plugins.html#Using_the_executions_Tag). 
+
+## Usage
+The plugin provides the only goal "install". It's mapped on "initialize" phase by default. To use the default flow add these lines to the plugin definition:
+```
+<executions>
+    <execution>
+        <goals>
+            <goal>install</goal>
+        </goals>
+    </execution>
+</executions>
+```
+To configure hooks provide the following configuration for the execution:
+```
+<hooks>
+  <hook-name>script</hook-name>
+  ...
+</hooks>
+```
+
+## Usage Example
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.sandbox</groupId>
+    <artifactId>githook-test</artifactId>
+    <version>1.0.0</version>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.sandbox</groupId>
+                <artifactId>githook-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                        <configuration>
+                            <hooks>
+                                <pre-commit>
+                                    echo running validation build
+                                    exec mvn clean install
+                                </pre-commit>
+                            </hooks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
