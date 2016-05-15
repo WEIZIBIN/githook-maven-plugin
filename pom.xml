@@ -7,6 +7,9 @@
     <artifactId>githook-maven-plugin</artifactId>
     <version>1.0.0</version>
     <packaging>maven-plugin</packaging>
+    <name>Git Hook Plugin</name>
+    <description>Maven plugin to configure and install local git hooks</description>
+    <url>https://github.com/olukyrich/githook-maven-plugin</url>
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
