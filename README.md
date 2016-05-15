@@ -38,6 +38,7 @@ To configure hooks provide the following configuration for the execution:
   ...
 </hooks>
 ```
+NOTE: plugin rewrites hooks.
 
 ## Usage Example
 ```
